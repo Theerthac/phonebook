@@ -95,7 +95,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
             child: Text(
               widget.boxname!,
               style: TextStyle(
-                fontSize: widget.boxNameSize ?? 16,
+                fontSize: widget.boxNameSize ?? 14,
                 color: widget.boxNameColor ?? Colors.grey.shade600,
                 fontWeight: widget.boxNameWeight ?? FontWeight.w400,
               ),
@@ -121,7 +121,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
               isDense: true,
               hintText: widget.hintText,
               hintStyle: TextStyle(
-                fontSize: widget.hintTextSize ?? 14,
+                fontSize: widget.hintTextSize ?? 13,
                 fontWeight: widget.hintTextWeight ?? FontWeight.w300,
                 color: widget.hintTextColor ?? Colors.grey,
                 overflow: TextOverflow.ellipsis,
@@ -177,15 +177,15 @@ class _CustomTextFieldState extends State<CustomTextField> {
                       ),
                     )
                   : widget.trailingIcon != null
-                      ? GestureDetector(
-                          onTap: widget.onTrailingIconTap,
-                          child: Icon(
-                            widget.trailingIcon,
-                            size: widget.trailingIconSize,
-                            color: widget.trailingIconColor,
-                          ),
-                        )
-                      : null,
+                  ? GestureDetector(
+                      onTap: widget.onTrailingIconTap,
+                      child: Icon(
+                        widget.trailingIcon,
+                        size: widget.trailingIconSize,
+                        color: widget.trailingIconColor,
+                      ),
+                    )
+                  : null,
             ),
           ),
         ),

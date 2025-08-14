@@ -3,8 +3,76 @@ import 'package:phonebook/core/constants/colors.dart';
 import 'package:phonebook/presentation/widgets/custom_text.dart';
 import 'package:phonebook/presentation/widgets/spacing_extensions.dart';
 
+// class ContactList extends StatelessWidget {
+//   const ContactList({super.key});
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return Container(
+//       width: context.deviceSize.width,
+//       child: Row(
+//         mainAxisAlignment: MainAxisAlignment.spaceBetween,
+//         children: [
+//           Row(
+//             children: [
+//               CircleAvatar(
+//                 radius: 30,
+//                 backgroundColor: Color(0xFF8AA4B9),
+//                 child: AppText(
+//                   'T',
+//                   size: 20,
+//                   weight: FontWeight.w700,
+//                   color: primaryclr,
+//                 ),
+//               ),
+//               15.wBox,
+//               Column(
+//                 crossAxisAlignment: CrossAxisAlignment.start,
+//                 children: [
+//                   AppText(
+//                     'Theertha',
+//                     color: colorBlack,
+//                     size: 15,
+//                     weight: FontWeight.w500,
+//                   ),
+//                   AppText(
+//                     '9895028574',
+//                     color: greyText,
+//                     size: 13,
+//                     weight: FontWeight.w500,
+//                   ),
+//                 ],
+//               ),
+//             ],
+//           ),
+
+//           Row(
+//             children: [
+//               Icon(Icons.star_border_outlined, color: grey500, size: 28),
+//               Icon(Icons.more_vert, color: colorBlack, size: 25),
+//             ],
+//           ),
+//         ],
+//       ),
+//     );
+//   }
+// }
+
+import 'package:phonebook/data/model.dart';
+
 class ContactList extends StatelessWidget {
-  const ContactList({super.key});
+  final Contact contact;
+  final VoidCallback? onEdit;
+  final VoidCallback? onDelete;
+  final VoidCallback? onToggleFavorite;
+
+  const ContactList({
+    super.key,
+    required this.contact,
+    this.onEdit,
+    this.onDelete,
+    this.onToggleFavorite,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -17,12 +85,12 @@ class ContactList extends StatelessWidget {
             children: [
               CircleAvatar(
                 radius: 30,
-                backgroundColor: Color(0xFF8AA4B9),
+                backgroundColor: const Color(0xFF8AA4B9),
                 child: AppText(
-                  'T',
+                  contact.name.isNotEmpty ? contact.name[0].toUpperCase() : 'U',
                   size: 20,
                   weight: FontWeight.w700,
-                  color: secondbuttonclr,
+                  color: primaryclr,
                 ),
               ),
               15.wBox,
@@ -30,13 +98,13 @@ class ContactList extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   AppText(
-                    'Theertha',
+                    contact.name,
                     color: colorBlack,
                     size: 15,
                     weight: FontWeight.w500,
                   ),
                   AppText(
-                    '9895028574',
+                    contact.phone,
                     color: greyText,
                     size: 13,
                     weight: FontWeight.w500,
@@ -45,11 +113,59 @@ class ContactList extends StatelessWidget {
               ),
             ],
           ),
-
           Row(
             children: [
-              Icon(Icons.star_border_outlined, color: grey500, size: 28),
-              Icon(Icons.more_vert, color: colorBlack, size: 25),
+              InkWell(
+                onTap: () {
+                  print('Favorite tapped for ${contact.name}'); // Debug print
+                  onToggleFavorite?.call();
+                },
+                borderRadius: BorderRadius.circular(20),
+                child: Padding(
+                  padding: const EdgeInsets.all(4.0),
+                  child: Icon(
+                    contact.isFavorite ? Icons.star : Icons.star_border_outlined,
+                    color: contact.isFavorite ? Colors.amber : grey500,
+                    size: 28,
+                  ),
+                ),
+              ),
+              PopupMenuButton<String>(
+                icon: Icon(Icons.more_vert, color: colorBlack, size: 25),
+                onSelected: (String value) {
+                  print('Menu item selected: $value for ${contact.name}'); // Debug print
+                  switch (value) {
+                    case 'edit':
+                      onEdit?.call();
+                      break;
+                    case 'delete':
+                      onDelete?.call();
+                      break;
+                  }
+                },
+                itemBuilder: (BuildContext context) => [
+                  PopupMenuItem<String>(
+                    value: 'edit',
+                    child: Row(
+                      children: [
+                        Icon(Icons.edit, size: 20, color: colorBlack),
+                        8.wBox,
+                        Text('Edit'),
+                      ],
+                    ),
+                  ),
+                  PopupMenuItem<String>(
+                    value: 'delete',
+                    child: Row(
+                      children: [
+                        Icon(Icons.delete, size: 20, color: Colors.red),
+                        8.wBox,
+                        Text('Delete', style: TextStyle(color: Colors.red)),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             ],
           ),
         ],

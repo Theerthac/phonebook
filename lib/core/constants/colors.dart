@@ -11,7 +11,7 @@ const Color colorWhite = Color(0xFFFFFFFF),
     txtGrey = Color(0xFF97a2b7),
     greyclr = Color(0xFFEEEEEE),
     greyshde = Color(0xFF828189),
-    secondbuttonclr = Color(0xFF364960),
+    primaryclr = Color(0xFF364960),
     
     grey100 = Color(0xFFF5F5F5),
     grey200 = Color(0xFF555555),
