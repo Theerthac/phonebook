@@ -3,7 +3,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:phonebook/core/constants/api.dart';
 import 'package:phonebook/presentation/screens/authentication/login_page/login_screen.dart';
-import 'package:phonebook/presentation/screens/contact_list/contact_screen.dart';
 import 'package:phonebook/presentation/widgets/themes/appthemes.dart';
 import 'package:phonebook/presentation/widgets/themes/theme_cubit.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
