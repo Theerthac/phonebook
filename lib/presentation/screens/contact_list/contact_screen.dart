@@ -4,6 +4,7 @@ import 'package:phonebook/core/constants/colors.dart';
 import 'package:phonebook/data/model.dart';
 import 'package:phonebook/presentation/screens/contact_list/cubit/contact_cubit.dart';
 import 'package:phonebook/presentation/screens/contact_list/widgets/contact_list.dart';
+import 'package:phonebook/presentation/screens/contact_list/widgets/shimmer_effect.dart';
 import 'package:phonebook/presentation/screens/contact_list/widgets/showdialog.dart';
 import 'package:phonebook/presentation/widgets/custom_search.dart';
 import 'package:phonebook/presentation/widgets/custom_text.dart';
@@ -15,27 +16,30 @@ class ContactScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        elevation: 0,
-        title: AppText('Contacts', size: 18, weight: FontWeight.w600),
-        actions: [
-          IconButton(
-            icon: Icon(
-              Theme.of(context).brightness == Brightness.dark
-                  ? Icons.light_mode_outlined
-                  : Icons.dark_mode_outlined,
+    return BlocProvider(
+      create: (context) => ContactCubit(),
+      child: Scaffold(
+        appBar: AppBar(
+          title: const AppText('Contacts', size: 18, weight: FontWeight.w600),
+          actions: [
+            BlocBuilder<ThemeCubit, ThemeMode>(
+              builder: (context, state) {
+                return IconButton(
+                  icon: Icon(
+                    state == ThemeMode.dark
+                        ? Icons.light_mode_outlined
+                        : Icons.dark_mode_outlined,
+                  ),
+                  onPressed: () {
+                    context.read<ThemeCubit>().toggleTheme();
+                  },
+                );
+              },
             ),
-            onPressed: () {
-              context.read<ThemeCubit>().toggleTheme();
-            },
-          ),
-        ],
-      ),
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 15),
-        child: BlocProvider(
-          create: (context) => ContactCubit()..fetchContacts(),
+          ],
+        ),
+        body: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 15),
           child: BlocBuilder<ContactCubit, ContactState>(
             builder: (context, state) {
               return Column(
@@ -50,7 +54,7 @@ class ContactScreen extends StatelessWidget {
                     leadingIcon: Icons.search,
                     borderRadius: BorderRadius.circular(40),
                     onChanged: (query) {
-                      context.read<ContactCubit>().searchContacts(query);
+                      context.read<ContactCubit>().searchContact(query);
                     },
                   ),
                   20.hBox,
@@ -60,14 +64,17 @@ class ContactScreen extends StatelessWidget {
             },
           ),
         ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        backgroundColor: Theme.of(context).cardColor,
-        onPressed: () {
-          print("object");
-          showAddContactDialog(context);
-        },
-        child: Icon(Icons.add, color: Theme.of(context).primaryColor),
+        floatingActionButton: Builder(
+          builder: (context) {
+            return FloatingActionButton(
+              backgroundColor: Theme.of(context).cardColor,
+              onPressed: () {
+                showAddContactDialog(context);
+              },
+              child: Icon(Icons.add, color: Theme.of(context).primaryColor),
+            );
+          },
+        ),
       ),
     );
   }
@@ -92,7 +99,7 @@ class ContactScreen extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         GestureDetector(
-          onTap: () => cubit.toggleAllContactsFilter(),
+          onTap: () => cubit.allContacts(),
           child: Container(
             decoration: BoxDecoration(
               color: showAllContacts ? selectedColor : Colors.transparent,
@@ -111,7 +118,7 @@ class ContactScreen extends StatelessWidget {
           ),
         ),
         GestureDetector(
-          onTap: () => cubit.toggleFavoritesFilter(),
+          onTap: () => cubit.favoritesFilter(),
           child: Container(
             decoration: BoxDecoration(
               color: showFavorites ? selectedColor : Colors.transparent,
@@ -119,7 +126,7 @@ class ContactScreen extends StatelessWidget {
               border: showFavorites ? null : Border.all(color: grey300),
             ),
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+              padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 5),
               child: AppText(
                 'Favorite',
                 size: 13,
@@ -130,7 +137,7 @@ class ContactScreen extends StatelessWidget {
           ),
         ),
         GestureDetector(
-          onTap: () => cubit.toggleRecentlyAddedFilter(),
+          onTap: () => cubit.recentlyAdd(),
           child: Container(
             decoration: BoxDecoration(
               color: showRecent ? selectedColor : Colors.transparent,
@@ -138,7 +145,7 @@ class ContactScreen extends StatelessWidget {
               border: showRecent ? null : Border.all(color: grey300),
             ),
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+              padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 5),
               child: AppText(
                 'Recent',
                 size: 13,
@@ -153,8 +160,13 @@ class ContactScreen extends StatelessWidget {
   }
 
   Widget _buildContactList(BuildContext context, ContactState state) {
-    if (state is ContactListLoading) {
-      return const Center(child: CircularProgressIndicator());
+    if (state is ContactListLoading || state is ContactInitial) {
+      return ListView.separated(
+        itemCount: 8,
+        itemBuilder: (context, index) => const ContactListShimmer(),
+        separatorBuilder: (context, index) =>
+            Divider(color: grey500, thickness: 0.5),
+      );
     }
 
     if (state is ContactListError) {
@@ -162,10 +174,10 @@ class ContactScreen extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.contacts_outlined, size: 64, color: grey500),
+            Icon(Icons.error_outline, size: 64, color: Colors.red.shade300),
             16.hBox,
             const AppText(
-              ' Somthing Went Wrong ',
+              'Something Went Wrong',
               size: 16,
               weight: FontWeight.w500,
             ),
@@ -193,7 +205,7 @@ class ContactScreen extends StatelessWidget {
       }
 
       return RefreshIndicator(
-        onRefresh: () => context.read<ContactCubit>().fetchContacts(),
+        onRefresh: () => context.read<ContactCubit>().getContacts(),
         child: ListView.separated(
           itemBuilder: (context, index) {
             final contact = state.contacts[index];
@@ -219,22 +231,21 @@ class ContactScreen extends StatelessWidget {
   }
 
   void _showDeleteDialog(BuildContext context, Contact contact) {
+    final cubit = context.read<ContactCubit>();
     showDialog(
       context: context,
-      builder: (BuildContext context) {
+      builder: (BuildContext dialogContext) {
         return AlertDialog(
           title: const Text('Delete Contact'),
           content: Text('Are you sure you want to delete ${contact.name}?'),
           actions: [
             TextButton(
-              onPressed: () => Navigator.of(context).pop(),
+              onPressed: () => Navigator.of(dialogContext).pop(),
               child: const Text('Cancel'),
             ),
             TextButton(
               onPressed: () {
-                // To prevent trying to use context after the dialog is popped
-                final cubit = context.read<ContactCubit>();
-                Navigator.of(context).pop();
+                Navigator.of(dialogContext).pop();
                 cubit.deleteContact(contact.id);
               },
               style: TextButton.styleFrom(foregroundColor: Colors.red),

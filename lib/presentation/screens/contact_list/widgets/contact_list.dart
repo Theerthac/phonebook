@@ -2,62 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:phonebook/core/constants/colors.dart';
 import 'package:phonebook/presentation/widgets/custom_text.dart';
 import 'package:phonebook/presentation/widgets/spacing_extensions.dart';
-
-// class ContactList extends StatelessWidget {
-//   const ContactList({super.key});
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Container(
-//       width: context.deviceSize.width,
-//       child: Row(
-//         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-//         children: [
-//           Row(
-//             children: [
-//               CircleAvatar(
-//                 radius: 30,
-//                 backgroundColor: Color(0xFF8AA4B9),
-//                 child: AppText(
-//                   'T',
-//                   size: 20,
-//                   weight: FontWeight.w700,
-//                   color: primaryclr,
-//                 ),
-//               ),
-//               15.wBox,
-//               Column(
-//                 crossAxisAlignment: CrossAxisAlignment.start,
-//                 children: [
-//                   AppText(
-//                     'Theertha',
-//                     color: colorBlack,
-//                     size: 15,
-//                     weight: FontWeight.w500,
-//                   ),
-//                   AppText(
-//                     '9895028574',
-//                     color: greyText,
-//                     size: 13,
-//                     weight: FontWeight.w500,
-//                   ),
-//                 ],
-//               ),
-//             ],
-//           ),
-
-//           Row(
-//             children: [
-//               Icon(Icons.star_border_outlined, color: grey500, size: 28),
-//               Icon(Icons.more_vert, color: colorBlack, size: 25),
-//             ],
-//           ),
-//         ],
-//       ),
-//     );
-//   }
-// }
-
 import 'package:phonebook/data/model.dart';
 
 class ContactList extends StatelessWidget {
@@ -76,7 +20,9 @@ class ContactList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    final textColor = Theme.of(context).textTheme.bodyLarge?.color;
+
+    return SizedBox(
       width: context.deviceSize.width,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -84,11 +30,11 @@ class ContactList extends StatelessWidget {
           Row(
             children: [
               CircleAvatar(
-                radius: 30,
+                radius: 28,
                 backgroundColor: const Color(0xFF8AA4B9),
                 child: AppText(
                   contact.name.isNotEmpty ? contact.name[0].toUpperCase() : 'U',
-                  size: 20,
+                  size: 18,
                   weight: FontWeight.w700,
                   color: primaryclr,
                 ),
@@ -99,13 +45,13 @@ class ContactList extends StatelessWidget {
                 children: [
                   AppText(
                     contact.name,
-                    color: colorBlack,
-                    size: 15,
+                    color: textColor,
+                    size: 14,
                     weight: FontWeight.w500,
                   ),
                   AppText(
                     contact.phone,
-                    color: greyText,
+                    color: textColor,
                     size: 13,
                     weight: FontWeight.w500,
                   ),
@@ -117,23 +63,24 @@ class ContactList extends StatelessWidget {
             children: [
               InkWell(
                 onTap: () {
-                  print('Favorite tapped for ${contact.name}'); // Debug print
                   onToggleFavorite?.call();
                 },
                 borderRadius: BorderRadius.circular(20),
                 child: Padding(
                   padding: const EdgeInsets.all(4.0),
                   child: Icon(
-                    contact.isFavorite ? Icons.star : Icons.star_border_outlined,
+                    contact.isFavorite
+                        ? Icons.star
+                        : Icons.star_border_outlined,
                     color: contact.isFavorite ? Colors.amber : grey500,
                     size: 28,
                   ),
                 ),
               ),
               PopupMenuButton<String>(
-                icon: Icon(Icons.more_vert, color: colorBlack, size: 25),
+                icon: Icon(Icons.more_vert, color: textColor, size: 25),
                 onSelected: (String value) {
-                  print('Menu item selected: $value for ${contact.name}'); // Debug print
+                  print('Menu item selected: $value for ${contact.name}');
                   switch (value) {
                     case 'edit':
                       onEdit?.call();

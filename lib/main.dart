@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:phonebook/core/constants/api.dart';
+import 'package:phonebook/presentation/screens/authentication/login_page/login_screen.dart';
 import 'package:phonebook/presentation/screens/contact_list/contact_screen.dart';
 import 'package:phonebook/presentation/widgets/themes/appthemes.dart';
 import 'package:phonebook/presentation/widgets/themes/theme_cubit.dart';
@@ -12,7 +13,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
   await dotenv.load(fileName: "api_key.env");
-  String apiToken = dotenv.env['API_TOKEN'] ?? '';
+  String apiToken = dotenv.env['api_key'] ?? '';
 
   await Supabase.initialize(url: url, anonKey: apiToken);
 
@@ -33,8 +34,9 @@ class MyApp extends StatelessWidget {
             debugShowCheckedModeBanner: false,
             theme: AppThemes.lightTheme,
             darkTheme: AppThemes.darkTheme,
+            
             themeMode: themeMode,
-            home: const ContactScreen(),
+            home: const LoginScreen(),
           );
         },
       ),

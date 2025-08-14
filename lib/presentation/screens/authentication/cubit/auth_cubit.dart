@@ -6,7 +6,6 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 part 'auth_state.dart';
 
 class AuthCubit extends Cubit<AuthState> {
-  // Initialize Supabase client
   final SupabaseClient _supabase = Supabase.instance.client;
 
   AuthCubit() : super(AuthInitial());
@@ -15,77 +14,50 @@ class AuthCubit extends Cubit<AuthState> {
   final passwordController = TextEditingController();
   final confirmPasswordController = TextEditingController();
 
-  Future<bool> signUp() async {
-    print('signUp() called');
-
-    print('Form validated successfully');
-
+  Future<bool> signUpFunction() async {
     emit(AuthLoading());
-    print('AuthLoading state emitted');
-
     try {
-      print('Calling Supabase signUp with email: ${emailController.text}');
-
       final AuthResponse res = await _supabase.auth.signUp(
         email: emailController.text,
         password: passwordController.text,
       );
 
-      print('Supabase signUp response received');
-      print('User: ${res.user}');
-      print('Session: ${res.session}');
-
       if (res.user != null) {
         print('User is not null, emitting AuthAuthenticated');
         emit(AuthAuthenticated(user: res.user!));
-        return true; // Success
+        return true;
       } else {
         print('User is null, emitting AuthError');
         emit(AuthError(message: 'Sign up failed. Please check your details.'));
-        return false; // Failure
+        return false;
       }
     } on AuthException catch (e) {
       print('Caught AuthException: ${e.message}');
       emit(AuthError(message: e.message));
-      return false; // Failure
+      return false;
     } catch (e) {
       print('Caught unknown exception: $e');
       emit(AuthError(message: 'An unknown error occurred.'));
-      return false; // Failure
+      return false;
     }
   }
 
-  Future<bool> signIn() async {
-    print('--- signIn method initiated ---');
+  Future<bool> logInFunction() async {
 
     emit(AuthLoading());
-    print('State emitted: AuthLoading');
-
-    print('Entering try block for Supabase authentication.');
-
-    // Print the credentials being sent
-    print('--> Attempting sign in with Email: "${emailController.text}"');
-    print('--> Attempting sign in with Password: "${passwordController.text}"');
 
     final AuthResponse res = await _supabase.auth.signInWithPassword(
       email: emailController.text,
       password: passwordController.text,
     );
-    print('Supabase signInWithPassword call completed.');
 
     if (res.user != null) {
-      print('User object is not null. Authentication successful.');
       emit(AuthAuthenticated(user: res.user!));
-      print('State emitted: AuthAuthenticated with user data.');
-      print('Returning true.');
       return true;
     } else {
-      print('User object is null. Authentication failed.');
       emit(
         AuthError(message: 'Sign in failed. Please check your credentials.'),
       );
-      print('State emitted: AuthError with failure message.');
-      print('Returning false.');
       return false;
     }
   }

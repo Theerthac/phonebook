@@ -14,7 +14,6 @@ class SearchField extends StatefulWidget {
   final double? height;
   final Function(String)? onChanged;
 
-  // New color customizations
   final Color? fillColor;
   final Color? hintTextColor;
   final Color? borderColor;

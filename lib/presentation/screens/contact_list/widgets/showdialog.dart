@@ -3,15 +3,19 @@ import 'package:phonebook/core/constants/colors.dart';
 import 'package:phonebook/data/model.dart';
 import 'package:phonebook/presentation/widgets/custom_textfield.dart';
 import 'package:phonebook/presentation/widgets/spacing_extensions.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:phonebook/presentation/screens/contact_list/cubit/contact_cubit.dart';
 
 void showAddContactDialog(BuildContext context, {Contact? contact}) {
   final nameController = TextEditingController(text: contact?.name);
   final phoneController = TextEditingController(text: contact?.phone);
   final isEditing = contact != null;
 
+  final contactCubit = context.read<ContactCubit>();
+
   showDialog(
     context: context,
-    builder: (BuildContext context) {
+    builder: (BuildContext dialogContext) {
       return AlertDialog(
         backgroundColor: Theme.of(context).cardColor,
         shape: RoundedRectangleBorder(
@@ -26,6 +30,7 @@ void showAddContactDialog(BuildContext context, {Contact? contact}) {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
+              10.hBox,
               CustomTextField(
                 controller: nameController,
                 hintText: 'Enter name',
@@ -34,7 +39,7 @@ void showAddContactDialog(BuildContext context, {Contact? contact}) {
                 noBorder: true,
                 height: 1.0,
               ),
-              16.hBox,
+              5.hBox,
               CustomTextField(
                 controller: phoneController,
                 hintText: 'Enter phone number',
@@ -54,15 +59,28 @@ void showAddContactDialog(BuildContext context, {Contact? contact}) {
             ),
             child: const Text('Cancel'),
             onPressed: () {
-              Navigator.of(context).pop();
+              Navigator.of(dialogContext).pop();
             },
           ),
           TextButton(
             style: TextButton.styleFrom(foregroundColor: primaryclr),
             child: Text(isEditing ? 'Update' : 'Save'),
             onPressed: () {
-              // For now, just close the dialog without saving anywhere
-              Navigator.of(context).pop();
+              final name = nameController.text;
+              final phone = phoneController.text;
+
+              if (name.isNotEmpty && phone.isNotEmpty) {
+                if (isEditing) {
+                  final updatedContact = contact.copyWith(
+                    name: name,
+                    phone: phone,
+                  );
+                  contactCubit.updateContact(updatedContact);
+                } else {
+                  contactCubit.addContact(name: name, phone: phone);
+                }
+                Navigator.of(dialogContext).pop();
+              }
             },
           ),
         ],
